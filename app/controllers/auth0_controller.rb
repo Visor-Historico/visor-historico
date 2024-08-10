@@ -1,4 +1,3 @@
-# ./app/controllers/auth0_controller.rb
 class Auth0Controller < ApplicationController
   def callback
     # OmniAuth stores the information returned from Auth0 and the IdP in request.env['omniauth.auth'].
