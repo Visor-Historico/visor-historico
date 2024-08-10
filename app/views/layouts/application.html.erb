@@ -17,12 +17,17 @@
       </div>
       <div class="flex-none gap-2">
         <ul class="menu menu-horizontal px-1">
-          <li>
-            <%= link_to 'Sign Up' %>
-          </li>
-          <li>
-            <%= link_to 'Log In' %>
-          </li>
+          <% if session.dig('userinfo').nil? %>
+            <li>
+              <!--<%= link_to 'Log In', '/auth/auth0', method: :post %>-->
+              <%= button_to 'Login', '/auth/auth0', method: :post, data: { turbo: false } %>
+            </li>
+          <% else %>
+            <li>
+              <!-- <%= link_to 'Sign Up' %> -->
+              <%= button_to 'Logout', 'auth/logout', method: :get, data: { turbo: false } %>
+            </li>
+          <% end %>
         </ul>
       </div>
     </div>
