@@ -11,6 +11,21 @@
   </head>
 
   <body>
+    <div class="navbar bg-base-300">
+      <div class="flex-1">
+        <%= link_to 'Visor Historico', root_path, class: 'btn btn-ghost text-xl' %>
+      </div>
+      <div class="flex-none gap-2">
+        <ul class="menu menu-horizontal px-1">
+          <li>
+            <%= link_to 'Sign Up' %>
+          </li>
+          <li>
+            <%= link_to 'Log In' %>
+          </li>
+        </ul>
+      </div>
+    </div>
     <%= yield %>
   </body>
 </html>
