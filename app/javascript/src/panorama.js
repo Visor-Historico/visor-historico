@@ -17,3 +17,11 @@ export function panoramaInitialization() {
 
   return { scene, mesh, renderer, camera }
 }
+
+export function audioInitialization() {
+  const listener = new THREE.AudioListener();
+  const audioLoader = new THREE.AudioLoader();
+  const sound = new THREE.Audio(listener);
+
+  return { listener, audioLoader, sound }
+}
