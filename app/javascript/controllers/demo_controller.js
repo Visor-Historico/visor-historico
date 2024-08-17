@@ -15,6 +15,12 @@ export default class extends Controller {
     this.element.appendChild(renderer.domElement);
     this.element.appendChild(VRButton.createButton(renderer));
 
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+
     renderer.setAnimationLoop(() => {
       renderer.render(scene, camera);
     });
