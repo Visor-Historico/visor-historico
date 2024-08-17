@@ -1,11 +1,11 @@
 import { Controller } from "@hotwired/stimulus"
-import { Panorama } from "../src/panorama";
+import { panoramaInitialization } from "../src/panorama";
 import { VRButton } from "three/examples/jsm/Addons.js";
 
 // Connects to data-controller="demo"
 export default class extends Controller {
   connect() {
-    const { scene, mesh, renderer, camera } = Panorama.panoramaInitialization();
+    const { scene, mesh, renderer, camera } = panoramaInitialization();
 
     scene.add(mesh);
     renderer.setPixelRatio(window.devicePixelRatio);
