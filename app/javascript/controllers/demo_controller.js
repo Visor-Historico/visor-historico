@@ -1,31 +1,18 @@
 import { Controller } from "@hotwired/stimulus"
-import * as THREE from 'three';
-
-const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 1100);
-const renderer = new THREE.WebGLRenderer({antialias: true});
-const geometry = new THREE.SphereGeometry( 500, 60, 40 );
-geometry.scale(-1, 1, 1);
-const texture = new THREE.TextureLoader().load( '/images/360_tour/cineCentroDia4K.png' );
-texture.minFilter = THREE.LinearFilter;
-texture.magFilter = THREE.LinearFilter;
-texture.generateMipmaps = true;
-texture.anisotropy = renderer.capabilities.getMaxAnisotropy();
-texture.colorSpace = THREE.SRGBColorSpace;
-const material = new THREE.MeshBasicMaterial( { map: texture } );
-const mesh = new THREE.Mesh( geometry, material );
+import { Panorama } from "../src/panorama";
 
 // Connects to data-controller="demo"
 export default class extends Controller {
   connect() {
+    const { scene, mesh, renderer, camera } = Panorama.panoramaInitialization();
+
     scene.add(mesh);
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.setAnimationLoop(this.animate);
     this.element.appendChild(renderer.domElement);
-  }
 
-  animate() {
-    renderer.render(scene, camera);
+    renderer.setAnimationLoop(() => {
+      renderer.render(scene, camera);
+    });
   }
 }
