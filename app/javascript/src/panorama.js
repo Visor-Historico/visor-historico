@@ -1,6 +1,5 @@
 import * as THREE from 'three';
 
-
 export class Panorama {
   static panoramaInitialization() {
     const scene = new THREE.Scene();
