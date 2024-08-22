@@ -1,24 +1,49 @@
-# README
+# Visor Historico (Demo)
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+This is a demo project for Cine Elizondo's visualization.
 
-Things you may want to cover:
 
-* Ruby version
 
-* System dependencies
 
-* Configuration
+## Features
 
-* Database creation
+- Fully functional LogIn with Auth0 platform.
+- 360 model visualization with ThreeJS.
+- VR support.
 
-* Database initialization
 
-* How to run the test suite
+## Installation
 
-* Services (job queues, cache servers, search engines, etc.)
+Download repo.
 
-* Deployment instructions
+```bash
+  git clone git@github.com:Visor-Historico/visor-historico.git
+  cd visor-historico/
+```
 
-* ...
+Install libraries.
+
+```bash
+bundle install
+yarn install
+```
+
+Add environment variables.
+
+```bash
+# .env
+
+AUTH0_DOMAIN=
+AUTH0_CLIENT_ID=
+AUTH0_CLIENT_SECRET=
+```
+
+Run the project.
+
+```bash
+./bin/dev
+```
+
+## Demo
+
+https://visor-historico-bd32ba213b1b.herokuapp.com/
