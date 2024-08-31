@@ -1,12 +1,13 @@
 import * as THREE from 'three';
 
-export function panoramaInitialization() {
+export function panoramaInitialization(panorama) {
   const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 1100);
+  const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 1000);
   const renderer = new THREE.WebGLRenderer({antialias: true});
-  const geometry = new THREE.SphereGeometry( 500, 60, 40 );
+  // Posicion inicial del view, esto tiene que venir como param segun la textura
+  const geometry = new THREE.SphereGeometry( 500, 60, 40, 1.5 ); 
   geometry.scale(-1, 1, 1);
-  const texture = new THREE.TextureLoader().load( '/images/360_tour/cineCentroDia4K.png' );
+  const texture = new THREE.TextureLoader().load( panorama );
   texture.minFilter = THREE.LinearFilter;
   texture.magFilter = THREE.LinearFilter;
   texture.generateMipmaps = true;
@@ -15,7 +16,7 @@ export function panoramaInitialization() {
   const material = new THREE.MeshBasicMaterial( { map: texture } );
   const mesh = new THREE.Mesh( geometry, material );
 
-  return { scene, mesh, renderer, camera }
+  return { scene, mesh, renderer, camera, material, texture}
 }
 
 export function audioInitialization() {
