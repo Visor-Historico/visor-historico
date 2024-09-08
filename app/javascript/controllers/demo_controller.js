@@ -28,38 +28,40 @@ export default class extends Controller {
     // Este listener debe comportarse de acuerdo a la currentTexture
     renderer.xr.addEventListener('sessionstart', () => {
       if (!sound.isPlaying) {
-        sound.play();
+        // sound.play();
       }
     });
 
     // Evento para detener el sonido al salir de VR
     renderer.xr.addEventListener('sessionend', () => {
       if (sound.isPlaying) {
-        sound.stop();
+        // sound.stop();
       }
     });
-
+    
     window.addEventListener('resize', () => {
       camera.aspect = window.innerWidth / window.innerHeight;
       camera.updateProjectionMatrix();
       renderer.setSize(window.innerWidth, window.innerHeight);
     });
-
+    
     renderer.setAnimationLoop(() => {
       renderer.render(scene, camera);
     });
-
-
+    
+    
     // Transiciones
     const raycaster = new THREE.Raycaster(); // Selector segun la vista VR emulada por mouse
     const mouse = new THREE.Vector2(); // Instancia mouse
-
+    
     // Lista de texturas
     const textures = {
-        fachada: texture, // Textura OG creada con panorama.js
-        lobby: new THREE.TextureLoader().load('/images/360_tour/cine/Lobby4K.png') // Segunda textura de loby
+      fachada: texture, // Textura OG creada con panorama.js
+      lobby: new THREE.TextureLoader().load('/images/360_tour/cine/Lobby4K.png'), // Segunda textura de loby
+      screen: new THREE.TextureLoader().load('/images/360_tour/cine/Pantalla4K.png'), // textura pantalla
+      seats: new THREE.TextureLoader().load('/images/360_tour/cine/cineCentroDia4K.png')
     };
-
+    
     // Se mapean las texturas con sus spots
     const hotspotsMap = new Map();
     hotspotsMap.set(textures.fachada, [
@@ -67,9 +69,21 @@ export default class extends Controller {
     ]);
     
     hotspotsMap.set(textures.lobby, [
-      { position: new THREE.Vector3(-30, 0, 400), texture: textures.fachada }
+      { position: new THREE.Vector3(-30, -40, -400), texture: textures.seats },
+      { position: new THREE.Vector3(30, -30, 400), texture: textures.fachada }
     ]);
-
+    
+    hotspotsMap.set(textures.screen, [
+      { position: new THREE.Vector3(30, 0, 400), texture: textures.seats }
+    ]);
+    
+    hotspotsMap.set(textures.seats, [
+      { position: new THREE.Vector3(-30, -40, -400), texture: textures.screen },
+      { position: new THREE.Vector3(30, 0, 400), texture: textures.lobby }
+    ]);
+    
+    
+    
     // Initializers currentSpots en blanco y constructores de los circulos
     let currentHotspots = [];
     const circleGeometry = new THREE.CircleGeometry(30, 32);
@@ -126,5 +140,22 @@ export default class extends Controller {
     }
     document.addEventListener('mousemove', onDocumentMouseMove, false);
     document.addEventListener('mousedown', onSelectStart, false);
+
+    function animate() {
+      renderer.setAnimationLoop(() => {
+          raycaster.setFromCamera(mouse, camera);
+          const intersects = raycaster.intersectObjects(currentHotspots);
+  
+          if (intersects.length > 0) {
+              document.body.style.cursor = 'pointer';
+          } else {
+              document.body.style.cursor = 'default';
+          }
+  
+          renderer.render(scene, camera);
+      });
+  }
+  
+  animate();
   }
 }
