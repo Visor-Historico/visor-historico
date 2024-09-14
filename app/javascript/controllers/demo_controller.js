@@ -7,9 +7,9 @@ import * as THREE from 'three';
 // Connects to data-controller="demo"
 export default class extends Controller {
   connect() {
-    const { scene, mesh, renderer, camera, texture, material } = panoramaInitialization('/images/360_tour/cine/Fachada360.png');
+    const { scene, renderer, camera, texture, mesh } = panoramaInitialization('/images/360_tour/cine/Fachada360.png');
     const { listener, audioLoader, sound } = audioInitialization();
-
+    
     scene.add(mesh);
     camera.add(listener);
     renderer.setPixelRatio(window.devicePixelRatio);
@@ -18,20 +18,20 @@ export default class extends Controller {
     renderer.xr.setReferenceSpaceType("local");
     this.element.appendChild(renderer.domElement);
     this.element.appendChild(VRButton.createButton(renderer));
-
+    
     audioLoader.load('/sounds/theater_ambiance.mp3', function(buffer) {
       sound.setBuffer(buffer);
       sound.setLoop(true); // Puedes configurarlo en false si no quieres que se repita
       sound.setVolume(0.5); // Ajusta el volumen como desees
     });
-
+    
     // Este listener debe comportarse de acuerdo a la currentTexture
     renderer.xr.addEventListener('sessionstart', () => {
       if (!sound.isPlaying) {
         // sound.play();
       }
     });
-
+    
     // Evento para detener el sonido al salir de VR
     renderer.xr.addEventListener('sessionend', () => {
       if (sound.isPlaying) {
@@ -83,9 +83,72 @@ export default class extends Controller {
     ]);
     
     
+    function transitionTextures(mesh, texture1, texture2, duration) {
+      const material = new THREE.ShaderMaterial({
+          transparent: true,
+          uniforms: {
+              texture1: { value: texture1 },
+              texture2: { value: texture2 },
+              brightness: { value: 1.6 },
+              mixRatio: { value: 0.0 },
+          },
+          vertexShader: `
+          varying vec2 vUv;
+
+          void main() {
+              vUv = uv;
+              gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+          }
+        `, // El shader de vértices
+          fragmentShader: `
+          uniform sampler2D texture1;
+          uniform sampler2D texture2;
+          uniform float mixRatio;
+          uniform float brightness;
+
+          varying vec2 vUv;
+
+          void main() {
+              vec4 color1 = texture2D(texture1, vUv);
+              vec4 color2 = texture2D(texture2, vUv);
+              color1.rgb *= brightness; // Aumenta el brillo multiplicando el color
+              color2.rgb *= brightness; // Aumenta el brillo multiplicando el color
+              gl_FragColor = mix(color1, color2, mixRatio);
+          }
+        `, // El shader de fragmentos
+      });
+  
+      mesh.material = material;
+      console.log('fog del trans:', mesh.material)
+      
+      let startTime = null;
+  
+      function animate(time) {
+          if (!startTime) startTime = time;
+          const elapsed = (time - startTime) / 1000; // Convertir a segundos
+          const ratio = Math.min(elapsed / duration, 1);
+          material.uniforms.mixRatio.value = ratio;
+  
+          if (ratio < 1) {
+              requestAnimationFrame(animate);
+          } else {
+              // Una vez completada la transición, puedes actualizar la textura
+              // mesh.material = new THREE.MeshBasicMaterial({ map: texture2 });
+              console.log('fog del def:', mesh.material)
+          }
+      }
+  
+      requestAnimationFrame(animate);
+  }
+  
+  // Ejemplo de uso:
+  // Suponiendo que tienes dos texturas y un objeto me
+        
+        
     
     // Initializers currentSpots en blanco y constructores de los circulos
     let currentHotspots = [];
+    let currentTexture = texture;
     const circleGeometry = new THREE.CircleGeometry(30, 32);
     const circleMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.DoubleSide });
     createHotspots(texture); // Crea los spots de la primer textura
@@ -93,9 +156,10 @@ export default class extends Controller {
     // Funcion que hace transicion de una textura a otra
     function changeTexture(newTexture) {
       // Cambiar la textura de la esfera
-      material.map = newTexture;
-      material.needsUpdate = true;
-      
+      // material.map = newTexture;
+      // material.needsUpdate = true;
+      transitionTextures(mesh, currentTexture, newTexture, 1)
+      currentTexture = newTexture;
       // Crear los nuevos hotspots para la textura actual
       createHotspots(newTexture);
     }
@@ -105,7 +169,6 @@ export default class extends Controller {
       // Eliminar hotspots anteriores
       currentHotspots.forEach(hotspot => scene.remove(hotspot));
       currentHotspots = [];
-  
       // Crear nuevos hotspots
       const hotspotsData = hotspotsMap.get(texture);
       hotspotsData.forEach(hotspotData => {
@@ -132,7 +195,6 @@ export default class extends Controller {
         }
       }
     }
-
     // Le dice al mouse como comportarse
     function onDocumentMouseMove(event) {
         mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
@@ -140,22 +202,5 @@ export default class extends Controller {
     }
     document.addEventListener('mousemove', onDocumentMouseMove, false);
     document.addEventListener('mousedown', onSelectStart, false);
-
-    function animate() {
-      renderer.setAnimationLoop(() => {
-          raycaster.setFromCamera(mouse, camera);
-          const intersects = raycaster.intersectObjects(currentHotspots);
-  
-          if (intersects.length > 0) {
-              document.body.style.cursor = 'pointer';
-          } else {
-              document.body.style.cursor = 'default';
-          }
-  
-          renderer.render(scene, camera);
-      });
-  }
-  
-  animate();
   }
 }
