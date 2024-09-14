@@ -9,3 +9,6 @@ application.register("demo", DemoController)
 
 import HelloController from "./hello_controller"
 application.register("hello", HelloController)
+
+import PlazaChorroController from "./plaza_chorro_controller"
+application.register("plaza-chorro", PlazaChorroController)
